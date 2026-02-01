@@ -112,4 +112,16 @@ class Connexion {
         }
     }
     
+    public function beginTransaction() {
+        return $this->conn->beginTransaction();
+    }
+
+    public function commit() {
+        return $this->conn->commit();
+    }
+
+    public function rollback() {
+        return $this->conn->rollback();
+    }
+    
 }
