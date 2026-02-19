@@ -121,7 +121,7 @@ class MyAccessBDD extends AccessBDD {
             case "commande":
                 return $this->deleteCommande($champs);
             case "exemplaire":
-                return $this->deleteCommande($champs);
+                return $this->deleteExemplaire($champs);
             default:
                 // cas général
                 return $this->deleteTuplesOneTable($table, $champs);
@@ -300,6 +300,11 @@ class MyAccessBDD extends AccessBDD {
         return $this->conn->queryBDD($requete, $champNecessaire);
     }
 
+    /**
+     * récupère toutes les commandes ou les commandes d'un document spécifique
+     * @param array|null $champs
+     * @return array|null
+     */
     private function selectAllCommandes(?array $champs): ?array {
         if (empty($champs) || !isset($champs['id'])) {
             $requete = "SELECT id, dateCommande, montant FROM commande ORDER BY dateCommande DESC;";
@@ -315,6 +320,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * récupère les abonnements d'une revue ou tous les abonnements
+     * @param array|null $champs
+     * @return array|null
+     */
     private function selectAbonnementsRevue(?array $champs): ?array {
         $requete = "SELECT c.id, c.dateCommande, c.montant, a.dateFinAbonnement, a.idRevue ";
         $requete .= "FROM commande c ";
@@ -330,6 +340,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * tente une connexion utilisateur et retourne ses informations
+     * @param array|null $champs email et password
+     * @return array|null informations utilisateur ou null
+     */
     private function login(?array $champs): ?array {
         $email = $champs['email'] ?? null;
         $pwd = $champs['password'] ?? null;
@@ -392,6 +407,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Ajoute un livre en gérant la transaction sur les tables document, livres_dvd et livre
+     * @param array $champs
+     * @return int|null
+     */
     private function insertLivre(array $champs): ?int {
         try {
             $this->conn->beginTransaction();
@@ -429,6 +449,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Ajoute un DVD en gérant la transaction sur les tables document, livres_dvd et dvd
+     * @param array $champs
+     * @return int|null
+     */
     private function insertDvd(array $champs): ?int {
         try {
             $this->conn->beginTransaction();
@@ -466,6 +491,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Ajoute une commande de document avec gestion de transaction sur les tables commandeDocument et commande
+     * @param array $champs
+     * @return int|null
+     */
     private function insertCommandeDocument(array $champs): ?int {
         try {
             $this->conn->beginTransaction();
@@ -491,6 +521,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Ajoute un abonnement avec gestion de transaction sur les tables abonnement et commande
+     * @param array $champs
+     * @return int|null
+     */
     private function insertAbonnement(array $champs): ?int {
         try {
             $this->conn->beginTransaction();
@@ -512,6 +547,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Supprime une commande
+     * @param array|null $champs contient l'id de la commande
+     * @return int|null nombre de lignes supprimées
+     */
     private function deleteCommande(?array $champs): ?int {
         $id = (is_array($champs) && isset($champs['id'])) ? $champs['id'] : null;
 
@@ -531,6 +571,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Supprime un livre et ses dépendances (livre, livres_dvd, document)
+     * @param array|null $champs contient l'id du livre
+     * @return int|null nombre de lignes supprimées (table document)
+     */
     private function deleteLivre(?array $champs): ?int {
         $id = (is_array($champs) && isset($champs['id'])) ? $champs['id'] : null;
 
@@ -552,6 +597,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Supprime un DVD et ses dépendances (dvd, livres_dvd, document)
+     * @param array|null $champs contient l'id du DVD
+     * @return int|null nombre de lignes supprimées (table document)
+     */
     private function deleteDvd(?array $champs): ?int {
         $id = (is_array($champs) && isset($champs['id'])) ? $champs['id'] : null;
 
@@ -560,7 +610,6 @@ class MyAccessBDD extends AccessBDD {
         }
 
         try {
-
             $this->conn->beginTransaction();
             $this->conn->updateBDD("delete from dvd where id=:id", ['id' => $id]);
             $this->conn->updateBDD("delete from livres_dvd where id=:id", ['id' => $id]);
@@ -574,6 +623,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Supprime une revue et ses dépendances (revue, document)
+     * @param array|null $champs contient l'id de la revue
+     * @return int|null nombre de lignes supprimées (table document)
+     */
     private function deleteRevue(?array $champs): ?int {
         $id = (is_array($champs) && isset($champs['id'])) ? $champs['id'] : null;
 
@@ -581,7 +635,6 @@ class MyAccessBDD extends AccessBDD {
             return null;
         }
         try {
-
             $this->conn->beginTransaction();
             $this->conn->updateBDD("delete from revue where id=:id", ['id' => $id]);
             $resDoc = $this->conn->updateBDD("delete from document where id=:id", ['id' => $id]);
@@ -594,6 +647,11 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Supprime un exemplaire spécifique d'un document
+     * @param array|null $champs contient l'id et le numéro d'exemplaire
+     * @return int|null
+     */
     private function deleteExemplaire(?array $champs): ?int {
         $id = (is_array($champs) && isset($champs['id'])) ? $champs['id'] : null;
         $numero = (is_array($champs) && isset($champs['numero'])) ? $champs['numero'] : null;
@@ -601,17 +659,22 @@ class MyAccessBDD extends AccessBDD {
             return null;
         }
         try {
-
             $this->conn->beginTransaction();
-            $this->conn->updateBDD("delete from exemplaire where id=:id AND numero=:numero", ['id' => $id, 'numero' => $numero]);
+            $res = $this->conn->updateBDD("delete from exemplaire where id=:id AND numero=:numero", ['id' => $id, 'numero' => $numero]);
             $this->conn->commit();
-            return $resDoc;
+            return $res;
         } catch (\Exception $e) {
             $this->conn->rollback();
             return null;
         }
     }
 
+    /**
+     * Met à jour un livre sur les tables document et livre via une transaction
+     * @param string $id
+     * @param array $champs
+     * @return int|null
+     */
     private function updateLivre(string $id, array $champs): ?int {
         try {
             $this->conn->beginTransaction();
@@ -643,6 +706,12 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Met à jour un DVD sur les tables document et dvd via une transaction
+     * @param string $id
+     * @param array $champs
+     * @return int|null
+     */
     private function updateDvd(string $id, array $champs): ?int {
         try {
             $this->conn->beginTransaction();
@@ -670,6 +739,12 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Met à jour une revue sur les tables document et revue via une transaction
+     * @param string $id
+     * @param array $champs
+     * @return int|null
+     */
     private function updateRevue(string $id, array $champs): ?int {
         try {
             $this->conn->beginTransaction();
@@ -695,6 +770,12 @@ class MyAccessBDD extends AccessBDD {
         }
     }
 
+    /**
+     * Met à jour l'état de suivi d'une commande
+     * @param string $id id de la commande
+     * @param array $champs contient l'idsuivi
+     * @return int|null
+     */
     private function updateSuiviCommande(string $id, array $champs): ?int {
         if (!isset($champs['idsuivi'])) {
             return null;
@@ -706,7 +787,14 @@ class MyAccessBDD extends AccessBDD {
         ];
         return $this->conn->updateBDD($requete, $params);
     }
-
+    
+    /**
+     * Met à jour l'état d'un exemplaire spécifique
+     * @param string $id id du document
+     * @param string $numero numéro de l'exemplaire
+     * @param array $champs contient l'idetat
+     * @return int|null
+     */
     private function updateEtatExemplaire(string $id, string $numero, array $champs): ?int {
         if (!isset($champs['idetat'])) {
             return null;
