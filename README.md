@@ -4,7 +4,7 @@ https://github.com/CNED-SLAM/rest_mediatekdocuments<br>
 Le readme de ce dépôt présente la structure de la base de l'API (rôle de chaque fichier) et comment l'exploiter.<br>
 Les ajouts faits dans cette API ne concernent que les fichiers '.env' (qui contient les données sensibles d'authentification et d'accès à la BDD) et 'MyAccessBDD.php' (dans lequel de nouvelles fonctions ont été ajoutées pour répondre aux demandes de l'application).<br>
 Cette API permet d'exécuter des requêtes SQL sur la BDD Mediatek86 créée avec le SGBDR MySQL.<br>
-Elle est accessible via une authentification "basique".<br>
+Elle est accessible via une authentification "basique" (login="admin", pwd="adminpwd").<br>
 Sa vocation actuelle est de répondre aux demandes de l'application MediaTekDocuments, mise en ligne sur le dépôt :<br>
 https://github.com/Isis-Gabrielle/mediatekdocument
 
